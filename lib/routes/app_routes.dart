@@ -1,27 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'package:aokiji_s_application4/presentation/splash_screen/splash_screen.dart';
-import 'package:aokiji_s_application4/presentation/sign_in_screen/sign_in_screen.dart';
-import 'package:aokiji_s_application4/presentation/sign_up_screen/sign_up_screen.dart';
-
-import 'package:aokiji_s_application4/presentation/notification_screen/notification_screen.dart';
-import 'package:aokiji_s_application4/presentation/notification_empty_states_screen/notification_empty_states_screen.dart';
-import 'package:aokiji_s_application4/presentation/message_chat_screen/message_chat_screen.dart';
-
-
-
-import 'package:aokiji_s_application4/presentation/filter_screen/filter_screen.dart';
-
-
-
-
-
-import 'package:aokiji_s_application4/presentation/faqs_get_help_screen/faqs_get_help_screen.dart';
-
-import 'package:aokiji_s_application4/presentation/edit_profile_screen/edit_profile_screen.dart';
-
-import 'package:aokiji_s_application4/presentation/favorite_screen/favorite_screen.dart';
-
+import 'package:edu_pro/presentation/splash_screen/splash_screen.dart';
+import 'package:edu_pro/presentation/sign_in_screen/sign_in_screen.dart';
+import 'package:edu_pro/presentation/sign_up_screen/sign_up_screen.dart';
 
 class AppRoutes {
   static const String onboardingScreen = '/onboarding_screen';
@@ -123,16 +104,9 @@ class AppRoutes {
     splashScreen: (context) => SplashScreen(),
     signInScreen: (context) => SignInScreen(),
     signUpScreen: (context) => SignUpScreen(),
-    notificationScreen: (context) => NotificationScreen(),
-    notificationEmptyStatesScreen: (context) => NotificationEmptyStatesScreen(),
-    messageChatScreen: (context) => MessageChatScreen(),
- 
-    filterScreen: (context) => FilterScreen(),
 
 
-    faqsGetHelpScreen: (context) => FaqsGetHelpScreen(),
-    editProfileScreen: (context) => EditProfileScreen(),
-    favoriteScreen: (context) => FavoriteScreen(),
+
 
   };
 }

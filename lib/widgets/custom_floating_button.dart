@@ -1,4 +1,4 @@
-import 'package:aokiji_s_application4/core/app_export.dart';
+import 'package:edu_pro/core/app_export.dart';
 import 'package:flutter/material.dart';
 
 class CustomFloatingButton extends StatelessWidget {

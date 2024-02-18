@@ -1,13 +1,6 @@
 import 'dart:async';
-import 'package:aokiji_s_application4/presentation/filter_screen/filter_screen.dart';
-import 'package:aokiji_s_application4/presentation/sign_in_screen/sign_in_screen.dart';
+import 'package:edu_pro/presentation/sign_in_screen/sign_in_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-String? finalEmail = '';
-String? obtainedEmail = '';
-
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -15,23 +8,23 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  void initState()
-  {
-    getValidation().whenComplete(() async {
-      Timer(Duration(seconds: 2),() => Get.to(finalEmail == null ? SignInScreen() : FilterScreen()));
-    });
+  @override
+  void initState() {
     super.initState();
+    // Gọi hàm để chuyển hướng sau 1.5 giây
+    _navigateToSignInScreen();
   }
 
-  Future getValidation() async {
-    final SharedPreferences sharedPreferences =
-        await SharedPreferences.getInstance();
-    var obtainedEmail = sharedPreferences.getString('email');
-    setState(() {
-      finalEmail = obtainedEmail;
+  // Hàm chuyển hướng đến SignInScreen sau độ trễ
+  void _navigateToSignInScreen() {
+    // Sử dụng Future.delayed để tạo độ trễ
+    Timer(Duration(seconds: 1), () {
+      // Chuyển hướng đến SignInScreen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => SignInScreen()),
+      );
     });
-    print(finalEmail);
-    print(obtainedEmail);
   }
 
   @override
@@ -41,9 +34,6 @@ class _SplashScreenState extends State<SplashScreen> {
         backgroundColor: Colors.white,
         body: Builder(
           builder: (context) {
-            // Sử dụng Future.delayed để đợi 2 giây trước khi chuyển hướng
-            
-
             return Container(
               width: double.maxFinite,
               child: Column(
@@ -59,12 +49,12 @@ class _SplashScreenState extends State<SplashScreen> {
                     height: 200,
                   ),
                   SizedBox(
-                    height: 5, // Khoảng cách giữa Text và ảnh
+                    height: 5,
                   ),
                   Text(
-                    'B R E M',
+                    'E D U P R O',
                     style: TextStyle(
-                      color: Colors.green,
+                      color: Colors.black,
                       fontSize: 65,
                       fontWeight: FontWeight.bold,
                     ),

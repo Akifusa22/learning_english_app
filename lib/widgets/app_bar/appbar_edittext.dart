@@ -1,5 +1,5 @@
-import 'package:aokiji_s_application4/core/app_export.dart';
-import 'package:aokiji_s_application4/widgets/custom_text_form_field.dart';
+import 'package:edu_pro/core/app_export.dart';
+import 'package:edu_pro/widgets/custom_text_form_field.dart';
 import 'package:flutter/material.dart';
 
 // ignore: must_be_immutable

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:aokiji_s_application4/core/app_export.dart';
+import 'package:edu_pro/core/app_export.dart';
 
 class AppStyle {
   static TextStyle txtManropeMedium14Gray900 = TextStyle(

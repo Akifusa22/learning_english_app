@@ -1,5 +1,5 @@
-import 'package:aokiji_s_application4/core/utils/color_constant.dart';
-import 'package:aokiji_s_application4/theme/app_style.dart';
+import 'package:edu_pro/core/utils/color_constant.dart';
+import 'package:edu_pro/theme/app_style.dart';
 
 import 'package:flutter/material.dart';
 

@@ -1,6 +1,6 @@
-import 'package:aokiji_s_application4/auth.dart';
-import 'package:aokiji_s_application4/presentation/sign_in_screen/sign_in_screen.dart';
-import 'package:aokiji_s_application4/presentation/sign_up_screen/sign_up_screen.dart';
+import 'package:edu_pro/auth.dart';
+import 'package:edu_pro/presentation/sign_in_screen/sign_in_screen.dart';
+import 'package:edu_pro/presentation/sign_up_screen/sign_up_screen.dart';
 import 'package:flutter/material.dart';
 
 class WidgetTree extends StatefulWidget {

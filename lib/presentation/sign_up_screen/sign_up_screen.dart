@@ -1,9 +1,9 @@
-import 'package:aokiji_s_application4/core/app_export.dart';
-import 'package:aokiji_s_application4/presentation/sign_in_screen/sign_in_screen.dart';
-import 'package:aokiji_s_application4/widgets/custom_button.dart';
-import 'package:aokiji_s_application4/widgets/custom_text_form_field.dart';
+import 'package:edu_pro/core/app_export.dart';
+import 'package:edu_pro/presentation/sign_in_screen/sign_in_screen.dart';
+import 'package:edu_pro/widgets/custom_button.dart';
+import 'package:edu_pro/widgets/custom_text_form_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:aokiji_s_application4/auth.dart';
+import 'package:edu_pro/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -13,12 +13,51 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  User? _user;
+
+  void initState() {
+    super.initState();
+    _user = _auth.currentUser;
+    sendVerificationEmail();
+  }
+
+  Future<void> sendVerificationEmail() async {
+    try {
+      if (_user != null) {
+        await _user!.sendEmailVerification();
+      }
+    } catch (e) {
+      // Xử lý lỗi gửi email xác minh
+      print('Error: $e');
+    }
+  }
+
   final FocusNode emailFocusNode = FocusNode();
+  bool isPhoneNumberValid(String phoneNumber) {
+    // Định dạng số điện thoại Việt Nam: 10 hoặc 11 chữ số, bắt đầu bằng 0 hoặc +84
+    final RegExp phoneRegex = RegExp(r'^(?:\+84|0[1-9])+[0-9]{8,9}$');
+    return phoneRegex.hasMatch(phoneNumber);
+  }
 
   bool isEmailValid(String email) {
     final RegExp emailRegex =
         RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$');
     return emailRegex.hasMatch(email);
+  }
+
+  bool isPasswordValid(String password) {
+    // Kiểm tra độ dài của mật khẩu
+    if (password.length <= 6) {
+      return false;
+    }
+
+    // Kiểm tra xem mật khẩu có chứa ít nhất một chữ cái hay không
+    if (!password.contains(RegExp(r'[a-zA-Z]'))) {
+      return false;
+    }
+
+    return true;
   }
 
   String? errorMessage = '';
@@ -27,8 +66,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
   TextEditingController fullnameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-  TextEditingController businessCodeController = TextEditingController();
-
+  TextEditingController confirmPasswordController = TextEditingController();
+  TextEditingController phoneController = TextEditingController();
   Future<void> signInWithEmailAndPassword() async {
     try {
       await Auth().signInWithEmailAndPassword(
@@ -80,19 +119,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
         await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
           'fullName': fullnameController.text,
           'email': emailController.text,
-          'businessCode': businessCodeController.text,
+          'phone': phoneController.text
+
           // Thêm thêm trường theo nhu cầu
         });
         showDialog(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: Text("Đăng Ký Thành Công"),
-              content: Text("Bạn đã đăng ký thành công!"),
+              title: Text("Một đường dẫn đã gửi tới Email của bạn để xác nhận"),
+              content: Text("Vui lòng xác nhận tài khoản Email!"),
               actions: <Widget>[
                 TextButton(
                   child: Text("Đóng"),
                   onPressed: () {
+                    sendVerificationEmail();
                     Navigator.of(context).pop();
                     Navigator.pushReplacement(
                       context,
@@ -115,7 +156,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
   void handleSignUpButtonPress() async {
     if (fullnameController.text.isEmpty ||
         emailController.text.isEmpty ||
-        passwordController.text.isEmpty) {
+        passwordController.text.isEmpty||
+        phoneController.text.isEmpty) {
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -152,6 +194,43 @@ class _SignUpScreenState extends State<SignUpScreen> {
           );
         },
       );
+    } else if (!isPasswordValid(passwordController.text)) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Mật khẩu không hợp lệ"),
+            content: Text(
+                "Vui lòng nhập mật khẩu có ít nhất 6 kí tự và chứa chữ cái."),
+            actions: <Widget>[
+              TextButton(
+                child: Text("Đóng"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  passwordController.clear();
+                  emailFocusNode
+                      .requestFocus(); // Xóa mật khẩu để người dùng nhập lại
+                },
+              ),
+            ],
+          );
+        },
+      );
+    } else if (!isPhoneNumberValid(phoneController.text)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Số điện thoại không hợp lệ."),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } else if (passwordController.text != confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              "Xác nhận mật khẩu không khớp."),
+          duration: Duration(seconds: 3),
+        ),
+      );
     } else {
       await createUserWithEmailAndPassword();
     }
@@ -174,7 +253,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           decoration: BoxDecoration(
             image: DecorationImage(
               image: AssetImage(
-                  "assets/images/nature_bg.jpg"), // Hình nền thiên nhiên
+                  "assets/images/nature_bg.png"), // Hình nền thiên nhiên
               fit: BoxFit.cover,
             ),
           ),
@@ -188,7 +267,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     TextSpan(
                       text: "Tạo tài khoản ",
                       style: TextStyle(
-                        color: Colors.white, // Màu chữ trắng
+                        color: Colors.black, // Màu chữ trắng
                         fontSize: getFontSize(24),
                         fontFamily: 'Manrope',
                         fontWeight: FontWeight.w800,
@@ -202,7 +281,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                     ),
                     TextSpan(
-                      text: "B R E M",
+                      text: "E D U P R O",
                       style: TextStyle(
                         color: Colors.blue, // Màu chữ trắng
                         fontSize: getFontSize(24),
@@ -228,7 +307,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.left,
                   style: AppStyle.txtManrope16.copyWith(
-                    color: Colors.white, // Màu chữ trắng
+                    color: Colors.black, // Màu chữ trắng
                     letterSpacing: getHorizontalSize(0.3),
                     shadows: [
                       Shadow(
@@ -262,10 +341,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 isObscureText: true,
               ),
               CustomTextFormField(
-                controller: businessCodeController,
-                hintText: "Mã Doanh Nghiệp",
+                focusNode: FocusNode(),
+                controller: confirmPasswordController,
+                hintText: "Xác nhận mật khẩu",
                 margin: getMargin(top: 16),
-                textInputType: TextInputType.text,
+                padding: TextFormFieldPadding.PaddingT14,
+                textInputAction: TextInputAction.done,
+                textInputType: TextInputType.visiblePassword,
+                isObscureText: true,
+              ),
+              CustomTextFormField(
+                focusNode: FocusNode(),
+                controller: phoneController,
+                hintText: "Số điện thoại",
+                margin: getMargin(top: 16),
+                padding: TextFormFieldPadding.PaddingT14,
+                textInputAction: TextInputAction.done,
+                textInputType: TextInputType.phone,
               ),
               GestureDetector(
                 onTap: handleSignUpButtonPress,

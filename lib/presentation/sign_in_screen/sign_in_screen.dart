@@ -1,13 +1,14 @@
-import 'package:aokiji_s_application4/core/app_export.dart';
-import 'package:aokiji_s_application4/presentation/filter_screen/filter_screen.dart';
-import 'package:aokiji_s_application4/widgets/custom_button.dart';
+import 'package:edu_pro/core/app_export.dart';
+import 'package:edu_pro/presentation/forgot_password/forgot_password_screen.dart';
+import 'package:edu_pro/screens/admin1.dart';
+import 'package:edu_pro/screens/home_screen.dart';
+import 'package:edu_pro/widgets/custom_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:aokiji_s_application4/auth.dart';
-import 'package:aokiji_s_application4/widgets/custom_text_form_field.dart';
+import 'package:edu_pro/auth.dart';
+import 'package:edu_pro/widgets/custom_text_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:aokiji_s_application4/verify.dart';
 
 // ignore_for_file: must_be_immutable
 
@@ -17,6 +18,20 @@ class SignInScreen extends StatefulWidget {
 }
 
 class _SignInScreenState extends State<SignInScreen> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  User? _user;
+
+  Future<void> sendVerificationEmail() async {
+    try {
+      if (_user != null) {
+        await _user!.sendEmailVerification();
+      }
+    } catch (e) {
+      // Xử lý lỗi gửi email xác minh
+      print('Error: $e');
+    }
+  }
+
   final FocusNode emailFocusNode = FocusNode();
 
   var isLogin = false;
@@ -42,6 +57,7 @@ class _SignInScreenState extends State<SignInScreen> {
   @override
   void initState() {
     super.initState();
+    _user = _auth.currentUser;
   }
 
   String? errorMessage = '';
@@ -61,13 +77,15 @@ class _SignInScreenState extends State<SignInScreen> {
         email: emailController.text,
         password: passwordController.text,
       );
-      Navigator.pushReplacementNamed(context, AppRoutes.filterScreen);
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => HomeScreen()));
     } catch (e) {
       setState(() {
         errorMessage = e.toString();
       });
     }
   }
+
 
   void handleSignInButtonPress() async {
     final SharedPreferences sharedPreferences =
@@ -122,18 +140,34 @@ class _SignInScreenState extends State<SignInScreen> {
         );
 
         if (userCredential.user != null && userCredential.user!.emailVerified) {
-          Get.to(FilterScreen());
           // Đăng nhập thành công và email đã xác minh
+          // Kiểm tra tài khoản và chuyển hướng đến màn hình tương ứng
+          if (userCredential.user?.email == "mirasakirido@gmail.com") {
+            Get.to(() => BottomNavScreen()); // Chuyển hướng đến màn hình A
+          } else {
+            // Đối với các email khác, chuyển hướng đến màn hình khác
+            Get.to(() => HomeScreen());
+          }
         } else {
           // Đăng nhập thành công nhưng email chưa xác minh
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => VerifyEmailScreen()),
+          sendVerificationEmail();
+          showDialog(
+            barrierDismissible: false,
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text("Vui lòng xác nhận tài khoản Email"),
+                content: Text("Một liên kết đã gửi tới Email của bạn"),
+                actions: <Widget>[],
+              );
+            },
           );
+          Future.delayed(Duration(seconds: 3), () {
+            Navigator.of(context).pop(); // Đóng dialog sau 2 giây
+          });
         }
-      } on FirebaseAuthException catch (e) {
+      } on FirebaseAuthException {
         // Xử lý lỗi đăng nhập (nếu có)
-        String errorMessage = e.message ?? "Đã xảy ra lỗi.";
         showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -167,7 +201,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 decoration: BoxDecoration(
                   image: DecorationImage(
                     image: AssetImage(
-                        "assets/images/nature_bg.jpg"), // Hình nền thiên nhiên
+                        "assets/images/nature_bg.png"), // Hình nền thiên nhiên
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -176,12 +210,11 @@ class _SignInScreenState extends State<SignInScreen> {
                     children: [
                       Align(
                           alignment: Alignment.centerLeft,
-                          child: Text("Chào Mừng Trở Lại!",
+                          child: Text("Chào mừng đến với EduPro!",
                               overflow: TextOverflow.ellipsis,
                               textAlign: TextAlign.left,
-                              style: AppStyle.txtManropeExtraBold24Gray900
-                                  .copyWith(
-                                color: Colors.white,
+                              style: AppStyle.txtManropeExtraBold20.copyWith(
+                                color: Colors.black,
                               ))),
                       Align(
                           alignment: Alignment.centerLeft,
@@ -192,7 +225,7 @@ class _SignInScreenState extends State<SignInScreen> {
                                   textAlign: TextAlign.left,
                                   style: AppStyle.txtManrope16.copyWith(
                                     letterSpacing: getHorizontalSize(0.3),
-                                    color: Colors.white,
+                                    color: Colors.black,
                                   )))),
                       CustomTextFormField(
                           focusNode: FocusNode(),
@@ -214,21 +247,32 @@ class _SignInScreenState extends State<SignInScreen> {
                       GestureDetector(
                         onTap: handleSignInButtonPress,
                         child: CustomButton(
-                            height: getVerticalSize(56),
-                            text: "Đăng Nhập",
-                            margin: getMargin(top: 20),
-                            shape: ButtonShape.RoundedBorder10,
-                            padding: ButtonPadding.PaddingAll16,
-                            fontStyle: ButtonFontStyle.ManropeBold16Gray50_1),
+                          height: getVerticalSize(62),
+                          text: "Đăng Nhập",
+                          margin: getMargin(top: 20),
+                          shape: ButtonShape.RoundedBorder10,
+                          padding: ButtonPadding.PaddingAll16,
+                          fontStyle: ButtonFontStyle.ManropeBold16Gray50_1,
+                        ),
                       ),
-                      Padding(
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => ForgotPasswordScreen()));
+                        },
+                        child: Padding(
                           padding: getPadding(top: 10),
-                          child: Text("Quên mật khẩu?",
-                              overflow: TextOverflow.ellipsis,
-                              textAlign: TextAlign.left,
-                              style: AppStyle.txtManropeSemiBold14.copyWith(
-                                color: Colors.white,
-                              ))),
+                          child: Text(
+                            "Quên mật khẩu?",
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.left,
+                            style: AppStyle.txtManropeSemiBold14.copyWith(
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                      ),
+
                       Padding(
                           padding: getPadding(left: 42, top: 30, right: 41),
                           child: Row(
@@ -239,7 +283,7 @@ class _SignInScreenState extends State<SignInScreen> {
                                     textAlign: TextAlign.left,
                                     style: AppStyle.txtManrope16.copyWith(
                                       letterSpacing: getHorizontalSize(0.3),
-                                      color: Colors.white,
+                                      color: Colors.black,
                                     )),
                                 GestureDetector(
                                     onTap: () {

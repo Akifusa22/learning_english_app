@@ -1,4 +1,4 @@
-import 'package:aokiji_s_application4/core/app_export.dart';
+import 'package:edu_pro/core/app_export.dart';
 import 'package:flutter/material.dart';
 
 class CustomButton extends StatelessWidget {
@@ -339,7 +339,7 @@ class CustomButton extends StatelessWidget {
         return TextStyle(
           color: ColorConstant.blueGray50,
           fontSize: getFontSize(
-            16,
+            18,
           ),
           fontFamily: 'Manrope',
           fontWeight: FontWeight.w700,
@@ -495,7 +495,7 @@ class CustomButton extends StatelessWidget {
         return TextStyle(
           color: ColorConstant.blue500,
           fontSize: getFontSize(
-            16,
+            19,
           ),
           fontFamily: 'Manrope',
           fontWeight: FontWeight.w700,
